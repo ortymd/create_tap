@@ -1,12 +1,12 @@
 #include <linux /if.h>
 #include <linux /if_tun.h>
 
-int tun_alloc(char *dev, int flags) {
+int get_net_fd(void) {
 
   struct ifreq ifr;
   int fd, err;
-  char *clonedev = "/dev/net/tun";
-
+  char *clonedev = "/dev/net/tun";	/* this block device is clone device as used
+																			 to create any tun/tap interface */
   /* Arguments taken by the function:
    *
    * char *dev: the name of an interface (or '\0'). MUST have enough
@@ -19,33 +19,22 @@ int tun_alloc(char *dev, int flags) {
      return fd;
    }
 
-   /* preparation of the struct ifr, of type "struct ifreq" */
    memset(&ifr, 0, sizeof(ifr));
 
    ifr.ifr_flags = IFF_TAP;   /* TAP device is neede to read/write eth frames */
 
-   if (*dev) {
-     /* if a device name was specified, put it in the structure; otherwise,
-      * the kernel will try to allocate the "next" device of the
-      * specified type */
-     strncpy(ifr.ifr_name, dev, IFNAMSIZ);
-   }
-
-   /* try to create the device */
    if( (err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ) {
      close(fd);
      return err;
    }
 
-  /* if the operation was successful, write back the name of the
-   * interface to the variable "dev", so the caller can know
-   * it. Note that the caller MUST reserve space in *dev (see calling
-   * code below) */
-  strcpy(dev, ifr.ifr_name);
-
-  /* this is the special file descriptor that the caller will use to talk
-   * with the virtual interface */
+  /* this is the special file descriptor that the caller will use to read/write 
+   *  virtual interface */
   return fd;
 }
 
-int
+int main()
+{
+	int fd = get_net_fd();
+	return 0;
+}
