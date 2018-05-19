@@ -1,0 +1,2 @@
+in order to create TAP device usig /dev/net/tun user must have admin privileges.
+Thus at the moment application should be run with $ sudo
